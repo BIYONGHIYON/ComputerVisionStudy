@@ -7,17 +7,11 @@ KNN으로 CIFAR-10 이미지를 분류합니다. 5-fold 교차검증으로 거�
 ## Algorithm Flow / 알고리즘 흐름
 
 1. **Load and sample / 데이터 준비:** Select 5,000 training and 1,000 test images with balanced class proportions; use seed 42. / 클래스 비율을 유지해 학습 5,000장·테스트 1,000장을 선택하며 seed는 42입니다.
-2. **Preprocess / 전처리:** Flatten each RGB image into 3,072 features and divide pixel values by 255. / RGB 이미지를 3,072차원 벡터로 펼치고 픽셀을 255로 나눕니다.
+2. **Preprocess / 전처리:** Each 32×32 RGB image has 3,072 values, already flattened as [1,024 R, 1,024 G, 1,024 B values]. Flattening rearranges existing values without adding features; 5,000 images form a (5000, 3072) array. Divide values by 255; KNN compares matching positions in these vectors. / 이미지 한 장은 32×32×3 = 3,072개 값이며, 파일에 이미 [R 1,024개, G 1,024개, B 1,024개] 순서로 펼쳐져 있습니다. 펼치기는 새 특징을 만드는 것이 아니라 기존 값을 한 줄로 배치하는 것입니다. 학습 5,000장의 배열 크기는 (5000, 3072)이고, 값을 255로 나눈 뒤 KNN에서 벡터의 같은 위치끼리 비교합니다.
 3. **Train / 학습:** Store training images and labels. / 학습 이미지와 정답을 저장합니다.
 4. **Predict / 예측:** Compute distances, select the nearest k images and predict by majority vote. Voting ties select the smaller class ID. / 거리를 계산해 가까운 k개 이미지를 선택하고 다수결로 예측합니다. 투표 동률이면 작은 클래스 ID를 선택합니다.
 5. **Validate / 검증:** Compare L1 (Manhattan), L2 (Euclidean) and cosine with k=1, 3, 5, 7, 9. Each fold uses 4,000 training and 1,000 validation images. Select the highest mean validation accuracy across five folds. / L1·L2·Cosine과 k=1, 3, 5, 7, 9를 비교합니다. Fold마다 학습 4,000장·검증 1,000장을 사용하고 다섯 fold의 평균 정확도로 설정을 선택합니다.
 6. **Test / 테스트:** Use all 5,000 training images with the selected setting and evaluate the separate 1,000-image test subset. / 선택한 설정으로 학습 5,000장을 모두 사용해 별도 테스트 표본 1,000장을 평가합니다.
-
-### Flattening / 펼치기
-
-A CIFAR-10 image contains **32 × 32 × 3 = 3,072 values**. Flattening arranges these existing values into one vector; it adds no new features. The files already store each image as **[1,024 R values, 1,024 G values, 1,024 B values]**. Thus, 5,000 images form an array of shape **(5000, 3072)**. KNN computes distances by comparing values at matching vector positions.
-
-CIFAR-10 이미지 한 장은 **32 × 32 픽셀 × RGB 3개 채널 = 3,072개 값**으로 이루어집니다. 펼치기(flatten)는 원래 값을 한 줄로 배치하는 것이며 새 특징을 만드는 것은 아닙니다. 파일에는 이미 **[R 값 1,024개, G 값 1,024개, B 값 1,024개]** 순서로 저장되어 있습니다. 따라서 학습 이미지 5,000장의 배열 크기는 **(5000, 3072)**이며, KNN은 두 벡터의 같은 위치에 있는 값끼리 비교해 거리를 계산합니다.
 
 Code / 코드: [assignment4.py](assignment4.py)
 
