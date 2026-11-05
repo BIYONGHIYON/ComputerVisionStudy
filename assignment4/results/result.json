@@ -1,0 +1,29 @@
+{
+  "seed": 42,
+  "train_samples": 5000,
+  "test_samples": 1000,
+  "ks": [
+    1,
+    3,
+    5,
+    7,
+    9
+  ],
+  "metrics": [
+    "euclidean",
+    "manhattan",
+    "cosine"
+  ],
+  "preprocessing": "raw RGB flattened to 3072 features, float32 / 255",
+  "selection": "highest mean CV accuracy; ties: smaller k, then metric name",
+  "best_metric": "manhattan",
+  "best_k": 9,
+  "test_scores": {
+    "accuracy": 0.3,
+    "precision_macro": 0.37195155365625354,
+    "recall_macro": 0.30000000000000004,
+    "f1_macro": 0.28607294228920815
+  },
+  "elapsed_seconds": 111.63254779099952,
+  "numpy_version": "2.5.3"
+}

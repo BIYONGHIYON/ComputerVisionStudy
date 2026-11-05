@@ -1,0 +1,14 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local editor and OS files
+.DS_Store
+.vscode/
+.idea/
+
+# Download CIFAR-10 separately (see assignment4/README.md)
+cifar-10-batches-py/
+cifar-10-python.tar.gz
