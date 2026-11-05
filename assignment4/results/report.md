@@ -1,16 +1,22 @@
-# CIFAR-10 KNN 실험 결과
+# CIFAR-10 KNN Experiment Results / 실험 결과
 
-## 실험 조건
+## Experimental Setup / 실험 조건
+
+We used stratified subsets of CIFAR-10: 5,000 training images and 1,000 test images, with seed 42. This is not a full-dataset experiment. Each RGB image was flattened into a 3,072-dimensional vector and its pixel values were divided by 255.
 
 CIFAR-10에서 클래스 비율을 유지해 학습 5,000장·테스트 1,000장을 사용했다. 전체 데이터 실험은 아니다. RGB 이미지를 3,072차원 벡터로 표현하고 픽셀을 255로 나누었다. seed는 42이다.
 
+KNN stores images and labels during training, then classifies a query using a majority vote among its k nearest neighbors. We compared k=1, 3, 5, 7, 9 and L1 (Manhattan), L2 (Euclidean) and cosine distances.
+
 KNN은 train에서 데이터와 label을 저장하고, predict에서 가까운 k개의 이웃을 찾아 majority voting으로 분류했다. k=1, 3, 5, 7, 9와 L1(Manhattan), L2(Euclidean), Cosine을 비교했다.
 
-## 5-fold cross-validation
+## 5-fold Cross-validation / 5겹 교차검증
+
+The training subset was divided into five folds. Each run used 4,000 images for training and 1,000 for validation. The table lists validation accuracy for each fold and the five-fold mean, in percent.
 
 학습 데이터를 5등분하여 매번 4,000장으로 train, 1,000장으로 validation을 수행했다. 아래는 각 fold의 Validation Accuracy와 5개 fold의 평균이다. 단위는 %이다.
 
-| Distance Metric | k | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Fold 5 | 평균 |
+| Distance Metric | k | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Fold 5 | Mean / 평균 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | L1 (Manhattan) | 1 | 24.20 | 28.80 | 28.10 | 26.90 | 26.50 | 26.90 |
 | L1 (Manhattan) | 3 | 24.90 | 26.90 | 25.30 | 26.50 | 27.90 | 26.30 |
@@ -28,25 +34,35 @@ KNN은 train에서 데이터와 label을 저장하고, predict에서 가까운 k
 | Cosine | 7 | 27.60 | 28.10 | 27.20 | 25.70 | 26.80 | 27.08 |
 | Cosine | 9 | 29.10 | 28.30 | 28.30 | 26.70 | 27.50 | 27.98 |
 
+**L1, k=9** achieved the highest mean validation accuracy and was selected. Its sample standard deviation across folds was 0.45 percentage points.
+
 Validation Accuracy가 가장 높은 **L1, k=9**를 선택했다. 이 설정의 fold 간 표본 표준편차는 0.45%p이다.
 
-## Test 결과
+## Test Results / 테스트 결과
+
+The selected configuration stored all 5,000 training images and was evaluated on a separate set of 1,000 test images.
 
 선택한 설정으로 학습 5,000장을 저장하고 별도 test set 1,000장을 평가했다.
 
-| 지표 | 결과 |
+| Metric / 지표 | Result / 결과 |
 |---|---:|
 | Accuracy | 30.00% |
 | Precision (macro) | 37.20% |
 | Recall (macro) | 30.00% |
 | F1-score (macro) | 28.61% |
 
+Precision, recall and F1 were macro-averaged over the 10 classes. Accuracy equals macro recall here because every class has the same number of test images.
+
 Precision·Recall·F1은 10개 클래스별 지표를 평균했다. 각 클래스의 test 이미지 수가 같아서 Accuracy와 macro Recall이 같다.
 
-## 비교 및 설명
+## Comparison and Discussion / 비교 및 설명
+
+For all three distance metrics, k=9 produced the highest mean validation accuracy among the tested k values. Voting over multiple neighbors improved on k=1, but accuracy did not increase monotonically with k. The best L1 validation accuracy exceeded the best L2 result by 2.04 percentage points and the best cosine result by 0.56 percentage points.
 
 세 Distance Metric 모두 k=9에서 평균 Validation Accuracy가 가장 높았다. k=1보다 여러 이웃의 majority voting을 이용했을 때 성능이 높았지만, k가 커질수록 항상 좋아지지는 않았다. L1의 최고 정확도는 L2보다 2.04%p, Cosine보다 0.56%p 높았다.
 
+L1 and L2 compare pixel differences, while cosine compares vector directions, so they may rank neighbors differently. Viewpoint variation, illumination and background clutter change pixel values. Small pixel distance therefore does not guarantee that two images belong to the same class, limiting KNN based on raw pixels.
+
 L1과 L2는 픽셀 차이를, Cosine은 벡터 방향을 비교하므로 이웃의 순서가 달라질 수 있다. 강의에서 설명한 viewpoint variation, illumination, background clutter는 픽셀 값을 바꾼다. 따라서 픽셀 거리가 가까워도 같은 클래스라는 보장은 없으며, 원시 픽셀 KNN의 성능에는 한계가 있다.
 
-데이터: [CIFAR-10](https://cave.cs.toronto.edu/kriz/cifar.html), Alex Krizhevsky (2009).
+Dataset / 데이터: [CIFAR-10](https://cave.cs.toronto.edu/kriz/cifar.html), Alex Krizhevsky (2009).
