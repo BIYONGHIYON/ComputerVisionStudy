@@ -65,4 +65,51 @@ L1 and L2 compare pixel differences, while cosine compares vector directions, so
 
 L1과 L2는 픽셀 차이를, Cosine은 벡터 방향을 비교하므로 이웃의 순서가 달라질 수 있다. 강의에서 설명한 viewpoint variation, illumination, background clutter는 픽셀 값을 바꾼다. 따라서 픽셀 거리가 가까워도 같은 클래스라는 보장은 없으며, 원시 픽셀 KNN의 성능에는 한계가 있다.
 
+## Per-class Results / 클래스별 결과
+
+The following values come from [test_per_class.csv](details/test_per_class.csv). Each class contains 100 test images. Precision and recall can differ substantially even with equal class support because prediction counts differ.
+
+다음 값은 [test_per_class.csv](details/test_per_class.csv)에서 가져왔습니다. 각 클래스의 테스트 표본은 100장입니다. 클래스별 표본 수가 같아도 해당 클래스로 예측한 수는 다르므로 Precision과 Recall은 크게 다를 수 있습니다.
+
+| Class ID | Class / 클래스 | Precision (%) | Recall (%) | F1 (%) | Support / 표본 수 |
+|---|---|---:|---:|---:|---:|
+| 0 | airplane / 비행기 | 36.21 | 63.00 | 45.99 | 100 |
+| 1 | automobile / 자동차 | 53.57 | 15.00 | 23.44 | 100 |
+| 2 | bird / 새 | 17.60 | 41.00 | 24.62 | 100 |
+| 3 | cat / 고양이 | 20.75 | 11.00 | 14.38 | 100 |
+| 4 | deer / 사슴 | 20.88 | 38.00 | 26.95 | 100 |
+| 5 | dog / 개 | 32.79 | 20.00 | 24.84 | 100 |
+| 6 | frog / 개구리 | 32.91 | 26.00 | 29.05 | 100 |
+| 7 | horse / 말 | 60.00 | 18.00 | 27.69 | 100 |
+| 8 | ship / 배 | 39.55 | 53.00 | 45.30 | 100 |
+| 9 | truck / 트럭 | 57.69 | 15.00 | 23.81 | 100 |
+
+Airplane recall is 63%, but its precision is 36.21%: 174 images were predicted as airplanes and 63 were correct. Horse precision is 60%, but recall is 18%: only 30 images were predicted as horses and 18 were correct. A high precision alone therefore does not imply that most actual examples of that class are found.
+
+비행기의 Recall은 63%이지만 Precision은 36.21%입니다. 비행기로 예측한 174장 중 63장이 정답이었습니다. 말의 Precision은 60%이지만 Recall은 18%입니다. 말로 예측한 30장 중 18장은 정답이지만 실제 말 100장 중 18장만 찾았습니다. 따라서 Precision만 높다고 해당 클래스의 실제 표본을 대부분 찾았다고 볼 수 없습니다.
+
+## Confusion Matrix Reading / 혼동행렬 해석
+
+Open [confusion_matrix.csv](details/confusion_matrix.csv) with rows as true labels and columns as predicted labels. The diagonal sums to 300 correct predictions; the remaining 700 predictions are errors. Class IDs match the table above.
+
+[confusion_matrix.csv](details/confusion_matrix.csv)의 행은 실제 정답, 열은 예측 클래스입니다. 대각선 합은 정답 300장이고 나머지 700장은 오분류입니다. 클래스 ID는 위 표와 같습니다.
+
+| True → predicted / 실제 → 예측 | Count / 표본 수 |
+|---|---:|
+| deer → bird / 사슴 → 새 | 35 |
+| dog → bird / 개 → 새 | 29 |
+| frog → bird / 개구리 → 새 | 29 |
+| horse → bird / 말 → 새 | 29 |
+| frog → deer / 개구리 → 사슴 | 26 |
+
+These are the five largest off-diagonal entries. Bird was predicted 233 times, with 41 correct predictions, producing recall of 41% and precision of 17.60%. This documents a prediction imbalance in this run. The counts alone do not identify whether background, color or another image property caused it.
+
+위 표는 대각선을 제외하고 가장 큰 다섯 항목입니다. 새로 예측한 표본은 233장이고 이 중 정답은 41장이어서 Recall은 41%, Precision은 17.60%입니다. 이 실행에서 특정 클래스로 예측이 몰리는 현상을 확인할 수 있습니다. 다만 이 수치만으로 배경, 색상 등 어떤 영상 특성이 원인인지 판단할 수는 없습니다.
+
+## Scope of the Findings / 결과 해석 범위
+
+The selected setting won among the 15 candidates on the saved folds. Fold standard deviation measures variation across those folds, not uncertainty across independent random seeds. The test accuracy is a single evaluation on the saved subset. No confidence interval, repeated-seed comparison or learned-feature baseline was evaluated here.
+
+선택된 설정은 저장된 fold에서 15개 후보 중 가장 높은 평균 정확도를 얻었습니다. Fold 표준편차는 해당 fold 사이의 변동이며 독립적인 여러 seed에 대한 불확실성이 아닙니다. 테스트 정확도는 저장된 부분집합에서 한 번 평가한 값입니다. 이 과제에서는 신뢰구간, 여러 seed 반복 비교, 학습된 특징을 사용하는 기준 모델을 평가하지 않았습니다.
+
 Dataset / 데이터: [CIFAR-10](https://cave.cs.toronto.edu/kriz/cifar.html), Alex Krizhevsky (2009).

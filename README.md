@@ -9,6 +9,38 @@ Source code and saved results for the Introduction to Computer Vision assignment
 | Morphological processing / 형태학적 이미지 처리 | [assignment3](assignment3/README.md) · [Python source / 코드](assignment3/assignment3.py) | [Input and four results / 입력 및 결과](assignment3/5_comparison.png) |
 | CIFAR-10 KNN | [assignment4](assignment4/README.md) · [Python source / 코드](assignment4/assignment4.py) | [Report / 결과 보고서](assignment4/results/report.md) · [Cross-validation CSV / 교차검증 CSV](assignment4/results/cv_summary.csv) |
 
+## Repository Guide / 저장소 구성
+
+Start with the assignment README for the method and execution steps, then open its saved results. Each assignment keeps its code and results together so that it can be reviewed without rerunning the experiment.
+
+과제별 README에서 원리와 실행 방법을 확인한 뒤 저장된 결과를 열어볼 수 있습니다. 과제별로 코드와 결과를 함께 배치해 실험을 다시 실행하지 않아도 내용을 확인할 수 있도록 했습니다.
+
+```text
+ComputerVisionStudy/
+├── README.md
+├── requirements.txt
+├── assignment3/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── assignment3.py
+│   ├── 0_binary.png
+│   └── 1_dilation.png ... 5_comparison.png
+└── assignment4/
+    ├── README.md
+    ├── requirements.txt
+    ├── assignment4.py
+    └── results/
+        ├── report.md
+        ├── result.json
+        ├── cv_summary.csv
+        ├── cv_accuracy.png
+        ├── knn_2d.png
+        └── details/
+```
+
+- **Morphological processing / 형태학적 처리:** Compare how a fixed neighborhood changes foreground shapes, removes small bright objects and fills small dark gaps. / 일정한 이웃 영역을 기준으로 전경 모양이 바뀌고 작은 흰 잡음과 검은 틈이 처리되는 과정을 비교합니다.
+- **KNN / K-최근접 이웃:** Implement distance computation and majority voting, choose hyperparameters using validation data, and evaluate the selected setting on held-out test data. / 거리 계산과 다수결 분류를 구현하고, 검증 데이터로 설정을 선택한 뒤 별도 테스트 데이터에서 평가합니다.
+
 ## Setup / 환경 설정
 
 Use Python 3.10 or later. Run the following commands from the repository root.
