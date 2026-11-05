@@ -6,8 +6,8 @@ Source code and results for two Introduction to Computer Vision assignments. Eac
 
 | Assignment / 과제 | Guide and code / 설명 및 코드 | Results / 결과 |
 |---|---|---|
-| Morphological Processing / 형태학적 처리 | [README](assignment3/README.md) · [Python](assignment3/assignment3.py) | [Comparison / 비교 이미지](assignment3/5_comparison.png) |
-| CIFAR-10 KNN | [README](assignment4/README.md) · [Python](assignment4/assignment4.py) | [Report / 결과 보고서](assignment4/results/report.md) |
+| Morphological Processing / 형태학적 처리 | [README](Morphological-Techniques/README.md) · [Python](Morphological-Techniques/assignment3.py) | [Comparison / 비교 이미지](Morphological-Techniques/5_comparison.png) |
+| CIFAR-10 KNN | [README](KNN/README.md) · [Python](KNN/assignment4.py) | [Tables and plot / 결과 표·그래프](KNN/README.md) |
 
 ## Setup / 환경 설정
 
@@ -28,10 +28,10 @@ Windows에서는 `.venv\Scripts\activate`로 가상환경을 활성화합니다.
 ## Run / 실행
 
 ```bash
-python assignment3/assignment3.py
-python assignment4/assignment4.py
+python Morphological-Techniques/assignment3.py
+python KNN/assignment4.py
 ```
 
-For KNN, first follow the [CIFAR-10 download instructions](assignment4/README.md). Input and result images for morphology, and numerical results and plots for KNN, are included in the repository.
+For KNN, first follow the [CIFAR-10 download instructions](KNN/README.md). Input and result images for morphology, and numerical results and plots for KNN, are included in the repository.
 
-KNN 실행 전 [CIFAR-10 다운로드 안내](assignment4/README.md)를 따라 데이터를 준비합니다. 형태학 과제의 입력·결과 이미지와 KNN의 수치 결과·그래프는 저장소에 포함되어 있습니다.
+KNN 실행 전 [CIFAR-10 다운로드 안내](KNN/README.md)를 따라 데이터를 준비합니다. 형태학 과제의 입력·결과 이미지와 KNN의 수치 결과·그래프는 저장소에 포함되어 있습니다.

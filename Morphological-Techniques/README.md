@@ -35,8 +35,8 @@ Input / 입력: [0_binary.png](0_binary.png). Use the individual images to inspe
 From the repository root / 저장소 루트에서 실행:
 
 ```bash
-python -m pip install -r assignment3/requirements.txt
-python assignment3/assignment3.py
+python -m pip install -r Morphological-Techniques/requirements.txt
+python Morphological-Techniques/assignment3.py
 ```
 
 Running the script overwrites the four result images and `5_comparison.png` in this folder.

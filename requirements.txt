@@ -1,2 +1,2 @@
--r assignment3/requirements.txt
--r assignment4/requirements.txt
+-r Morphological-Techniques/requirements.txt
+-r KNN/requirements.txt
