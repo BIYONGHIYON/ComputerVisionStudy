@@ -36,7 +36,7 @@ Mean validation accuracy across five folds (%).
 | 17 | 28.98 | 26.44 | 27.38 |
 | 19 | 28.80 | 25.84 | 27.38 |
 
-![Cross-validation accuracy / 교차검증 정확도](results/cv_accuracy.png)
+![Cross-validation accuracy / 교차검증 정확도](results/cv_accuracy_k19.png)
 
 **L1, k=17** achieved the highest mean validation accuracy of **28.98%**. The best k values were 17 for L1, 11 for L2, and 9 for cosine.
 
@@ -75,6 +75,6 @@ tar -xzf KNN/cifar-10-python.tar.gz -C KNN
 python KNN/assignment4.py
 ```
 
-Place `data_batch_1`–`data_batch_5`, `test_batch` and `batches.meta` inside `KNN/cifar-10-batches-py/`. Running the script overwrites numerical results; plots and Markdown reports are maintained separately. `knn_2d.png` is a synthetic illustration, not a CIFAR-10 test result.
+Place `data_batch_1`–`data_batch_5`, `test_batch` and `batches.meta` inside `KNN/cifar-10-batches-py/`. Running the script overwrites numerical results; plots and Markdown reports are maintained separately. The [synthetic 2D example](results/knn_2d.png) shows L1 and L2 decision boundaries for k=9, 11, 13, 15, 17, and 19.
 
-`KNN/cifar-10-batches-py/` 안에 `data_batch_1`–`data_batch_5`, `test_batch`, `batches.meta`가 있어야 합니다. 실행하면 수치 결과를 덮어쓰며 그래프와 Markdown 보고서는 별도로 관리합니다. `knn_2d.png`는 원리 설명용 가상 예시이며 CIFAR-10 테스트 결과가 아닙니다.
+`KNN/cifar-10-batches-py/` 안에 `data_batch_1`–`data_batch_5`, `test_batch`, `batches.meta`가 있어야 합니다. 실행하면 수치 결과를 덮어쓰며 그래프와 Markdown 보고서는 별도로 관리합니다. [2D 가상 예시](results/knn_2d.png)에서는 k=9, 11, 13, 15, 17, 19의 L1과 L2 결정 경계를 비교합니다.

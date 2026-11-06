@@ -31,7 +31,7 @@ Mean validation accuracy across five folds (%). Detailed fold results: [cv_folds
 
 **L1, k=17**의 평균 검증 정확도가 **28.98%**로 가장 높았습니다. 거리별 평균 정확도는 L1에서 k=17, L2에서 k=11, Cosine에서 k=9일 때 가장 높았습니다.
 
-![Cross-validation accuracy / 교차검증 정확도](cv_accuracy.png)
+![Cross-validation accuracy / 교차검증 정확도](cv_accuracy_k19.png)
 
 ## Test Results / 테스트 결과
 
