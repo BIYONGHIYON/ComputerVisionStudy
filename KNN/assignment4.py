@@ -6,6 +6,7 @@ import csv
 import json
 import pickle
 from pathlib import Path
+from time import perf_counter
 
 import numpy as np
 
@@ -14,7 +15,7 @@ DATA_DIR = ROOT / "cifar-10-batches-py"
 OUTPUT_DIR = ROOT / "results"
 TRAIN_SIZE = 5000  # 0이면 학습 데이터 전체
 TEST_SIZE = 1000   # 0이면 테스트 데이터 전체
-K_VALUES = [1, 3, 5, 7, 9]
+K_VALUES = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
 SEED = 42
 METRICS = ["euclidean", "manhattan", "cosine"]
 
@@ -184,13 +185,14 @@ def write_csv(path, rows):
 
 
 def main():
+    started = perf_counter()
     # 1. 학습 데이터를 읽고 클래스 비율을 유지해 실험용 표본을 고른다.
     batches = [load_batch(DATA_DIR / f"data_batch_{i}") for i in range(1, 6)]
     X = np.concatenate([batch[0] for batch in batches])
     y = np.concatenate([batch[1] for batch in batches])
     rng = np.random.default_rng(SEED)
-    indices = stratified_sample(y, TRAIN_SIZE, rng)
-    X, y = X[indices].astype(np.float32) / 255.0, y[indices]
+    train_indices = stratified_sample(y, TRAIN_SIZE, rng)
+    X, y = X[train_indices].astype(np.float32) / 255.0, y[train_indices]
     del batches
 
     # 2. 5-fold cross-validation: 4개 fold로 train, 1개 fold로 validation.
@@ -226,9 +228,9 @@ def main():
 
     # 4. 선택한 설정으로 test set을 평가한다. test 점수로 설정을 고르지 않는다.
     X_test, y_test = load_batch(DATA_DIR / "test_batch")
-    indices = stratified_sample(y_test, TEST_SIZE, np.random.default_rng(SEED + 1))
-    X_test = X_test[indices].astype(np.float32) / 255.0
-    y_test = y_test[indices]
+    test_indices = stratified_sample(y_test, TEST_SIZE, np.random.default_rng(SEED + 1))
+    X_test = X_test[test_indices].astype(np.float32) / 255.0
+    y_test = y_test[test_indices]
     model = KNearestNeighbor(best["metric"])
     model.train(X, y)
     predicted = model.predict(X_test, k=best["k"])
@@ -246,9 +248,22 @@ def main():
     write_csv(details / "cv_folds.csv", fold_results)
     write_csv(details / "test_per_class.csv", per_class)
     np.savetxt(details / "confusion_matrix.csv", confusion_matrix, fmt="%d", delimiter=",")
+    write_csv(details / "test_predictions.csv", [
+        {"original_test_index": index, "true": truth, "predicted": prediction}
+        for index, truth, prediction in zip(test_indices, y_test, predicted)
+    ])
+    np.savez(
+        details / "split_indices.npz",
+        train_indices=train_indices,
+        test_indices=test_indices,
+        **{f"cv_validation_{i}": fold for i, fold in enumerate(folds, 1)},
+    )
     result = {"seed": SEED, "train_samples": len(y), "test_samples": len(y_test),
               "ks": K_VALUES, "metrics": METRICS,
-              "best_metric": best["metric"], "best_k": best["k"], "test_scores": scores}
+              "preprocessing": "raw RGB flattened to 3072 features, float32 / 255",
+              "selection": "highest mean CV accuracy; ties: smaller k, then metric name",
+              "best_metric": best["metric"], "best_k": best["k"], "test_scores": scores,
+              "elapsed_seconds": perf_counter() - started, "numpy_version": np.__version__}
     (OUTPUT_DIR / "result.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(f"Best: {best['metric']}, k={best['k']}")
     for name, value in scores.items():

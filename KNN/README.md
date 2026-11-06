@@ -10,7 +10,7 @@ KNN으로 CIFAR-10 이미지를 분류합니다. 5-fold 교차검증으로 거�
 2. **Preprocess / 전처리:** Each 32×32 RGB image has 3,072 values, already flattened as [1,024 R, 1,024 G, 1,024 B values]. Flattening rearranges existing values without adding features; 5,000 images form a (5000, 3072) array. Divide values by 255; KNN compares matching positions in these vectors. / 이미지 한 장은 32×32×3 = 3,072개 값이며, 파일에 이미 [R 1,024개, G 1,024개, B 1,024개] 순서로 펼쳐져 있습니다. 펼치기는 새 특징을 만드는 것이 아니라 기존 값을 한 줄로 배치하는 것입니다. 학습 5,000장의 배열 크기는 (5000, 3072)이고, 값을 255로 나눈 뒤 KNN에서 벡터의 같은 위치끼리 비교합니다.
 3. **Train / 학습:** Store training images and labels. / 학습 이미지와 정답을 저장합니다.
 4. **Predict / 예측:** Compute distances, select the nearest k images and predict by majority vote. Voting ties select the smaller class ID. / 거리를 계산해 가까운 k개 이미지를 선택하고 다수결로 예측합니다. 투표 동률이면 작은 클래스 ID를 선택합니다.
-5. **Validate / 검증:** Compare L1 (Manhattan), L2 (Euclidean) and cosine with k=1, 3, 5, 7, 9. Each fold uses 4,000 training and 1,000 validation images. Select the highest mean validation accuracy across five folds. / L1·L2·Cosine과 k=1, 3, 5, 7, 9를 비교합니다. Fold마다 학습 4,000장·검증 1,000장을 사용하고 다섯 fold의 평균 정확도로 설정을 선택합니다.
+5. **Validate / 검증:** Compare L1 (Manhattan), L2 (Euclidean) and cosine with k=1, 3, 5, 7, 9, 11, 13, 15, 17, 19. Each fold uses 4,000 training and 1,000 validation images. Select the highest mean validation accuracy across five folds. / L1·L2·Cosine과 k=1, 3, 5, 7, 9, 11, 13, 15, 17, 19를 비교합니다. Fold마다 학습 4,000장·검증 1,000장을 사용하고 다섯 fold의 평균 정확도로 설정을 선택합니다.
 6. **Test / 테스트:** Use all 5,000 training images with the selected setting and evaluate the separate 1,000-image test subset. / 선택한 설정으로 학습 5,000장을 모두 사용해 별도 테스트 표본 1,000장을 평가합니다.
 
 Code / 코드: [assignment4.py](assignment4.py)
@@ -30,28 +30,33 @@ Mean validation accuracy across five folds (%).
 | 5 | 28.04 | 26.08 | 26.84 |
 | 7 | 27.88 | 25.88 | 27.08 |
 | 9 | 28.54 | 26.50 | 27.98 |
+| 11 | 28.56 | 27.06 | 27.32 |
+| 13 | 28.14 | 26.42 | 26.96 |
+| 15 | 28.54 | 26.40 | 27.52 |
+| 17 | 28.98 | 26.44 | 27.38 |
+| 19 | 28.80 | 25.84 | 27.38 |
 
 ![Cross-validation accuracy / 교차검증 정확도](results/cv_accuracy.png)
 
-**L1, k=9** achieved the highest mean accuracy of **28.54%**. All three metrics performed best at k=9 among the tested values, but increasing k did not always improve accuracy.
+**L1, k=17** achieved the highest mean validation accuracy of **28.98%**. The best k values were 17 for L1, 11 for L2, and 9 for cosine.
 
-**L1, k=9**가 평균 정확도 **28.54%**로 가장 높았습니다. 세 거리 함수 모두 후보 중 k=9에서 가장 높았지만, k가 커질 때마다 정확도가 좋아지지는 않았습니다.
+**L1, k=17**의 평균 검증 정확도가 **28.98%**로 가장 높았습니다. 거리별 평균 정확도는 L1에서 k=17, L2에서 k=11, Cosine에서 k=9일 때 가장 높았습니다.
 
 ### Test / 테스트
 
-The selected setting correctly classified 300 of 1,000 separate test images.
+The selected setting correctly classified 313 of 1,000 separate test images.
 
-선택한 설정으로 별도 테스트 이미지 1,000장 중 300장을 맞혔습니다.
+선택한 설정으로 별도 테스트 이미지 1,000장 중 313장을 맞혔습니다.
 
 
 | Setting or metric / 조건 및 지표 | Result / 결과 |
 |---|---:|
-| Selected setting / 선택한 설정 | L1 (Manhattan), k=9 |
-| Mean CV accuracy / 평균 검증 정확도 | 28.54% |
-| Test accuracy / 테스트 정확도 | 30.00% |
-| Macro precision | 37.20% |
-| Macro recall | 30.00% |
-| Macro F1 | 28.61% |
+| Selected setting / 선택한 설정 | L1 (Manhattan), k=17 |
+| Mean CV accuracy / 평균 검증 정확도 | 28.98% |
+| Test accuracy / 테스트 정확도 | 31.30% |
+| Macro precision | 39.29% |
+| Macro recall | 31.30% |
+| Macro F1 | 29.33% |
 
 These are single-seed results on a CIFAR-10 subset, not the full dataset. Macro metrics average scores across the ten classes. Detailed CSV and JSON records are saved in [results](results).
 
