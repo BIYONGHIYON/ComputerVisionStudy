@@ -1,2 +1,3 @@
 -r Morphological-Techniques/requirements.txt
 -r KNN/requirements.txt
+-r Linear-Classification/requirements.txt
