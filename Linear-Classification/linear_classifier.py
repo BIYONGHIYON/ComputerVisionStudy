@@ -21,20 +21,20 @@ def load_batch_file(path):
 
 
 def svm_hinge_loss(scores, label):
-    # Sum the positive margins for the nine incorrect classes.
+    # 정답 클래스를 제외한 9개 클래스의 양수 마진만 더한다.
     margins = np.maximum(0.0, scores - scores[label] + MARGIN)
     margins[label] = 0.0
     return margins.sum()
 
 
 def softmax(scores):
-    # Subtracting the maximum preserves probabilities and avoids overflow.
+    # 최댓값을 빼고 지수화한 뒤, 합이 1이 되도록 나눈다.
     exp_scores = np.exp(scores - scores.max())
     return exp_scores / exp_scores.sum()
 
 
 def to_rgb(vector):
-    # CIFAR-10 stores all red values, then green, then blue.
+    # R·G·B 채널 순서로 저장된 벡터를 (32, 32, 3) 이미지로 바꾼다.
     return vector.reshape(3, 32, 32).transpose(1, 2, 0)
 
 
@@ -69,9 +69,11 @@ def main():
     batch = load_batch_file(args.data_dir / "test_batch")
     metadata = load_batch_file(args.data_dir / "batches.meta")
     class_names = [name.decode("ascii") for name in metadata[b"label_names"]]
+    # 테스트 배치에서 이미지와 정답을 앞에서부터 5개씩 가져온다.
     images = batch[b"data"][:EXAMPLE_COUNT]
     labels = batch[b"labels"][:EXAMPLE_COUNT]
 
+    # 시드를 고정하고 클래스별 가중치와 편향을 초기화한다.
     rng = np.random.default_rng(SEED)
     W = rng.normal(0.0, WEIGHT_STD, size=(10, 3072))
     b = np.zeros(10)
@@ -86,10 +88,12 @@ def main():
                          "score", "probability", "probability_sum", "svm_hinge_loss"])
         for index, (pixels, label) in enumerate(zip(images, labels)):
             x = pixels.astype(np.float64) / 255.0
+            # 이미지 한 장마다 10개 클래스 점수를 계산하고 가장 높은 클래스를 고른다.
             scores = W @ x + b
             prediction = int(np.argmax(scores))
             loss = svm_hinge_loss(scores, label)
             probabilities = softmax(scores)
+            # 확률 합이 1이고 점수와 확률의 예측 클래스가 같은지 확인한다.
             total = probabilities.sum()
             np.testing.assert_allclose(total, 1.0, rtol=0.0, atol=1e-12)
             assert np.argmax(probabilities) == prediction
@@ -105,7 +109,7 @@ def main():
                                  f"{probability:.12f}", f"{total:.12f}", f"{loss:.12f}"])
             print(f"  Probability sum {total:.12f} | SVM hinge loss {loss:.6f}")
 
-    # Use one symmetric color scale for all classes, with zero shown as midgray.
+    # 10개 가중치 그림에 같은 색 범위를 쓰고, 0은 중간 회색으로 표시한다.
     limit = np.abs(W).max()
     weight_pixels = np.rint(127.5 * (W / limit + 1.0)).astype(np.uint8)
     save_image_grid([to_rgb(x) for x in images], captions, output / "examples.png")
