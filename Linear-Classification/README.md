@@ -4,13 +4,17 @@ Compute class scores, SVM hinge loss, and Softmax probabilities for five CIFAR-1
 
 고정된 무작위 가중치를 사용하는 선형 분류기로 CIFAR-10 예시 5장의 클래스 점수, SVM hinge loss, Softmax 확률을 계산합니다.
 
+A linear classifier is a parametric model. Each row of `W` contains the pixel weights for one class, and the corresponding entry in `b` adds a fixed offset to that class score. In this assignment, `W` and `b` stay at their initial values while the model scores the images.
+
+선형 분류기는 파라미터 모델입니다. `W`의 각 행은 한 클래스의 픽셀별 가중치이고, `b`의 각 원소는 해당 클래스 점수에 입력과 무관하게 더해지는 값입니다. 이 과제에서는 초기화한 `W`와 `b`로 이미지의 점수를 계산합니다.
+
 ## Algorithm Flow / 알고리즘 흐름
 
 1. **Input / 입력.** Use the first five images from the official test batch. Divide each 32×32 RGB image’s 3,072 pixel values by 255. / 공식 테스트 배치의 처음 5장을 사용합니다. 32×32 RGB 이미지 한 장의 픽셀 값 3,072개를 각각 255로 나눕니다.
 2. **Initialization / 초기화.** With seed 42, draw `W` of shape `(10, 3072)` from a normal distribution with mean 0 and standard deviation 0.01. Set all 10 entries in `b` to zero. / 시드 42로 평균 0, 표준편차 0.01인 정규분포에서 `W`를 초기화하고 `b`의 10개 값을 0으로 설정합니다.
-3. **Scores and prediction / 점수와 예측.** Compute `scores = W @ x + b` and predict the class with the highest score. / `scores = W @ x + b`로 10개 점수를 계산하고 가장 높은 점수의 클래스를 예측합니다.
-4. **SVM hinge loss / SVM 손실.** For each wrong class `j`, add `max(0, scores[j] - scores[y] + 1)`, where `y` is the true class. Average the five image losses. / 정답 클래스 `y`를 제외한 각 클래스에 대해 `max(0, scores[j] - scores[y] + 1)`을 더하고, 이미지 5장의 손실을 평균합니다.
-5. **Softmax / 소프트맥스.** Subtract the largest score for numerical stability, exponentiate, and divide by the sum. Check that each image’s probabilities sum to 1 and give the same predicted class as the raw scores. / 수치 안정을 위해 최댓값을 뺀 뒤 지수화하고 합으로 나눕니다. 이미지마다 확률 합이 1이고 원래 점수와 예측 클래스가 같은지 확인합니다.
+3. **Scores and prediction / 점수와 예측.** Compute `scores = W @ x + b`. The `10 × 3072` weight matrix multiplies the `3072 × 1` image vector, giving a `10 × 1` score vector after adding the bias. Predict the class with the largest score. / `10 × 3072` 크기의 가중치 행렬에 `3072 × 1` 이미지 벡터를 곱하고 편향을 더하면 `10 × 1` 점수 벡터가 나옵니다. 점수가 가장 큰 클래스를 예측합니다.
+4. **SVM hinge loss / SVM 손실.** For each class `j` other than the true class `y`, compute `max(0, scores[j] - scores[y] + 1)`. A class contributes zero when its score is at least 1 below the true class score. Sum the nine contributions per image and average over the five images. / 정답 클래스 `y`를 제외한 각 클래스 `j`에 대해 `max(0, scores[j] - scores[y] + 1)`을 계산합니다. 어떤 클래스의 점수가 정답 점수보다 1 이상 낮으면 그 항의 손실은 0입니다. 이미지마다 9개 항을 더한 뒤 5장의 손실을 평균합니다.
+5. **Softmax / 소프트맥스.** Treat the raw class scores as logits. Compute `exp(score - max_score)` for each class and divide by the sum of the ten exponentials. Check that the probabilities sum to 1 and preserve the highest scoring class. / 원래 클래스 점수를 로짓(logit)이라 부릅니다. 각 클래스에 대해 `exp(score - max_score)`를 계산하고 10개 지수값의 합으로 나눕니다. 확률 합이 1이고 가장 높은 점수의 클래스가 그대로인지 확인합니다.
 
 [Python source / 소스 코드](linear_classifier.py)
 
@@ -26,9 +30,9 @@ Compute class scores, SVM hinge loss, and Softmax probabilities for five CIFAR-1
 | 3 | airplane | dog | 1.000000 | 15.235916 |
 | 4 | frog | frog | 1.000000 | 3.573214 |
 
-The **mean SVM hinge loss is 8.017032**. Image #1 is correctly predicted as ship, but its loss is positive because some competing scores are within the margin of 1. Image #0 is predicted as dog because the dog score exceeds the true cat score.
+The **mean SVM hinge loss is 8.017032**. For image #1, ship has the highest score (0.906208), so the prediction is correct. The dog score (0.759060) falls within the margin, so it contributes `max(0, 0.759060 - 0.906208 + 1) = 0.852852` to the image loss. In image #0, dog scores higher than the true class cat, so the prediction is incorrect.
 
-**평균 SVM hinge loss는 8.017032**입니다. #1은 ship을 맞혔지만 일부 다른 클래스와의 점수 차가 마진 1보다 작아 손실이 남습니다. #0은 dog 점수가 정답인 cat 점수보다 높아 오분류했습니다.
+**평균 SVM hinge loss는 8.017032**입니다. #1은 정답인 ship의 점수(0.906208)가 가장 높아 맞혔습니다. dog의 점수(0.759060)와의 차이는 마진 1보다 작아, 이 항에서 `max(0, 0.759060 - 0.906208 + 1) = 0.852852`만큼 손실이 생깁니다. #0은 dog 점수가 정답인 cat보다 높아 오분류했습니다.
 
 ### Scores and probabilities / 점수와 확률 비교
 
@@ -55,9 +59,9 @@ The table shows all ten scores and probabilities for image #0. Softmax preserves
 
 ![Random weight images for all ten classes / 10개 클래스의 무작위 가중치 이미지](results/weights.png)
 
-Each row of `W` is restored from CIFAR-10’s channel order to a 32×32 RGB image. All ten images use the same color scale, with zero mapped to midgray. The weights were sampled independently of the images and labels, so the colors resemble noise. A correct prediction here is a chance match between the largest random score and the true label.
+Each row of `W` is restored from CIFAR-10’s channel order to a 32×32 RGB image. All ten images use the same color scale, with zero mapped to midgray. The lecture shows how a trained row of weights can act as a class template. Here the weights are sampled independently of the images and labels, so each visualization looks like noise. A correct prediction is a chance match with the true label.
 
-`W`의 각 행을 CIFAR-10 채널 순서에 맞춰 32×32 RGB 이미지로 복원했습니다. 10장에 동일한 표시 범위를 사용하고 가중치 0은 중간 회색으로 표시했습니다. 이미지와 정답을 학습하지 않고 독립적으로 뽑은 가중치라 색상이 잡음처럼 보입니다. 정답 사례는 무작위 가중치에서 가장 높은 점수를 받은 클래스가 실제 정답과 우연히 일치한 경우입니다.
+`W`의 각 행을 CIFAR-10 채널 순서에 맞춰 32×32 RGB 이미지로 복원했습니다. 10장에 동일한 표시 범위를 사용하고 가중치 0은 중간 회색으로 표시했습니다. 강의에서는 학습된 가중치의 각 행을 클래스의 대표 패턴으로 해석합니다. 여기서는 이미지나 정답과 무관하게 가중치를 뽑았기 때문에 각 그림이 잡음처럼 보입니다. 정답 사례는 가장 높은 점수를 받은 클래스가 실제 정답과 우연히 일치한 경우입니다.
 
 ## Data and Run / 데이터 준비 및 실행
 
@@ -72,4 +76,4 @@ python Linear-Classification/linear_classifier.py
 
 The script prints the scores and losses and recreates the CSV and both PNGs in `results/`. / 실행하면 점수와 손실을 출력하고 `results/`에 CSV와 PNG 두 장을 다시 저장합니다.
 
-Lecture reference / 강의자료 — Week 9-2, slides 12–15 and 22–29. Dataset reference / 데이터 출처 — Alex Krizhevsky, [Learning Multiple Layers of Features from Tiny Images](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf), 2009.
+Lecture reference / 강의자료 — Week 9-2, slides 9–16 (linear scores and class templates), 22–26 (SVM hinge loss), and 27–29 (Softmax). Dataset reference / 데이터 출처 — Alex Krizhevsky, [Learning Multiple Layers of Features from Tiny Images](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf), 2009.
